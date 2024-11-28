@@ -101,4 +101,4 @@
 
 #### 2.2. Блок-схема решения
 
-![scheme]("images/block-scheme.png")
+![scheme](images/block-scheme.png)
