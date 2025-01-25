@@ -3,10 +3,8 @@ offer_creation_prompt = "Please, propose the offer to other participants."
 offer_acceptance_prompt = "Please, choose one or zero of proposed offers - send only the name of its author. If no offers suits for you - return the reason why.\n{offers}"
 
 info_extraction_prompt = (
-    "You are a helpful assistant that takes the description of the offer and extracts the list of participants affected by the offer.\n"
-    "Follow the next format:\n"
-    "<List of participants splited by ;>\n"
-    "Note, that you can choose only participants from the list: {participants} (message can contain participant names with typos)."
+    "You should extract the information about offer from text: participants of this offer and for each participant extract the part that is connected to him (what he gets).\n"
+    "All players: {participants}.\nIf some player is not a participant of this offer - give him 0."
 )
 
 participant_prompt = (

@@ -7,6 +7,7 @@ from camel.agents import ChatAgent
 from camel.messages import BaseMessage
 from camel.models import ModelFactory
 from camel.types import ModelPlatformType, ModelType
+from pydantic import BaseModel
 
 
 from .prompts.base import (
@@ -15,6 +16,16 @@ from .prompts.base import (
     info_extraction_prompt,
     participant_prompt,
 )
+
+
+class ParticipantResult(BaseModel):
+    participant: str
+    result: int
+
+
+class Offer(BaseModel):
+    participants: list[str]
+    offers: list[ParticipantResult]
 
 
 class NegotiationStep(Enum):
@@ -53,23 +64,20 @@ class CoalitionNegotiationsManager:
     def init(self):
         sys_msg = BaseMessage.make_assistant_message(
             role_name="Offer extraction helper",
-            content=info_extraction_prompt,
+            content=info_extraction_prompt.format(participants=self.participants),
         )
-        if (
-            self.info_extration_agent_kwargs is not None
-            and "model" not in self.info_extration_agent_kwargs
-        ):
+        self.info_extration_agent_kwargs = self.info_extration_agent_kwargs or {}
+        if "model" not in self.info_extration_agent_kwargs:
             self.info_extration_agent_kwargs["model"] = ModelFactory.create(
                 model_platform=ModelPlatformType.OPENAI,
                 model_type=ModelType.GPT_4O,
+                model_config_dict={
+                    "response_format": Offer,
+                },
             )
         self.info_extration_agent = ChatAgent(
             system_message=sys_msg,
-            **(
-                self.info_extration_agent_kwargs
-                if self.info_extration_agent_kwargs is not None
-                else {}
-            ),
+            **self.info_extration_agent_kwargs,
         )
 
         self.agents: dict[str, ChatAgent] = {}
@@ -112,16 +120,15 @@ class CoalitionNegotiationsManager:
                     .content
                 )
 
-            participants = (
-                self.info_extration_agent.step(result).msgs[-1].content.split(";")
-            )
-            participants = [participant.strip() for participant in participants]
-            participants = list(set(participants) - set(participant_name))
+            offer = json.loads(self.info_extration_agent.step(result).msgs[-1].content)
+            participants = [
+                participant.strip() for participant in offer["participants"]
+            ]
             self.offers.append(
                 {
                     "from": participant_name,
                     "participants": participants,
-                    "offer": result,
+                    "offer": offer["offers"],
                 }
             )
             for to in participants:
@@ -135,7 +142,10 @@ class CoalitionNegotiationsManager:
         if len(offers_list) == 0:
             return None
         str_offers_list = [
-            f"Offer author: {offer['from']}\nParticipants: {offer['participants']}\nOffer: {offer['offer']}"
+            f"Offer author: {offer['from']}\nParticipants: {offer['participants']}\nOffer:\n"
+            + "\n".join(
+                [f"{item['participant']}: {item['result']}" for item in offer["offer"]]
+            )
             for offer in offers_list
         ]
         return offer_acceptance_prompt.format(offers="\n\n".join(str_offers_list))
@@ -296,7 +306,13 @@ class OldNegotiationsManager:
             if len(offers_list) == 0:
                 continue
             str_offers_list = [
-                f"Offer author: {offer['from']}\nParticipants: {offer['participants']}\nOffer: {offer['offer']}"
+                f"Offer author: {offer['from']}\nParticipants: {offer['participants']}\nOffer:\n"
+                + "\n".join(
+                    [
+                        f"{item['participant']}: {item['result']}"
+                        for item in offer["offer"]
+                    ]
+                )
                 for offer in offers_list
             ]
             prompt = offer_acceptance_prompt.format(offers="\n\n".join(str_offers_list))
