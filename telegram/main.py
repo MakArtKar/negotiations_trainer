@@ -27,7 +27,7 @@ async def create_simulation(message: types.Message):
     response = httpx.post(
         os.path.join(SIMULATION_CORE_HOST, "create_simulation"),
         timeout=HTTP_TIMEOUT,
-        json={"id": str(message.chat.id)},
+        json={"id": str(message.chat.id), "message": message.text},
     )
 
     if response.status_code == 200:

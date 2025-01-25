@@ -23,7 +23,7 @@ class NegotiationStep(Enum):
     NEGOTIATIONS_END = 2
 
 
-class NegotiationsManager:
+class CoalitionNegotiationsManager:
     def __init__(
         self,
         case: str,
