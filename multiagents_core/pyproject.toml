@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "multiagents-core"
+version = "0.1.0"
+description = ""
+authors = ["MakArtKar <makoyan2001@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.11.dev0"
+camel-ai = "^0.2.16"
+fastapi = "^0.115.6"
+python-dotenv = "^1.0.1"
+pillow = "^11.1.0"
+uvicorn = "^0.34.0"
+
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.29.5"
+colorama = "^0.4.6"
+googlemaps = "^4.10.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

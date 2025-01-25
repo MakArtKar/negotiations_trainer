@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "telegram"
+version = "0.1.0"
+description = "telegram bot for negotiations trainer"
+authors = ["MakArtKar <makoyan2001@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.11.dev0"
+aiogram = "^3.17.0"
+python-dotenv = "^1.0.1"
+httpx = "^0.28.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

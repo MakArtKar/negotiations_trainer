@@ -1,0 +1,8 @@
+{
+    "rules": "In these negotiations there are 3 participants: A, B and C. They should create a coalition consisting of some of them (2 or 3 people).\nIf A, B and C will create coalition together - they can split 30$.\nIf A and B will create coalition together - A and B can split 24$.\nIf A and C will create coalition together - A and C can split 24$.\nIf B and C will create coalition together - B and C can split 20$.\nThey should decide which coalition they will conclude and how they will split the money inside this coalition.",
+    "participants": {
+        "A": "human",
+        "B": "agent",
+        "C": "agent"
+    }
+}
