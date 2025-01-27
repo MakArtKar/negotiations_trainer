@@ -5,6 +5,7 @@ from typing import Any
 from camel.agents import ChatAgent
 from camel.messages import BaseMessage
 from camel.models import ModelFactory
+from camel.toolkits import FunctionTool, SearchToolkit
 from camel.types import ModelPlatformType, ModelType
 
 from .prompts.base import (
@@ -38,11 +39,17 @@ class OneOnOneNegotiationsManager:
         self.init()
 
     def init(self):
+        search_toolkit = SearchToolkit()
+        search_tools = [
+            FunctionTool(search_toolkit.search_google),
+            FunctionTool(search_toolkit.search_duckduckgo),
+        ]
         sys_msg = BaseMessage.make_assistant_message(
             role_name=f"Negotiations participant {self.agent_name}",
             content=participant_prompt.format(
                 name=self.agent_name, rules_prompt=self.rules_prompt
             )
+            + "You use web search to stay updated on the latest innovations and trends."
             + f"\n\nHere is extra information about the case and how you should behave.\n{self.agent_context}",
         )
 
@@ -54,6 +61,7 @@ class OneOnOneNegotiationsManager:
 
         self.agent = ChatAgent(
             system_message=sys_msg,
+            tools=search_tools,
             **self.agent_kwargs,
         )
 
