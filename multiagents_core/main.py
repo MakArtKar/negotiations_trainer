@@ -59,6 +59,13 @@ async def end_simulation(data: Data):
 
 @app.post("/get_text")
 async def get_text(data: Data) -> list[str] | None:
+    if data.id not in simulation_managers:
+        return [
+            (
+                "First, start the simulation with `/create_simulation <simulation_name>`.\n"
+                "Available simulations: 'abc', 'sales'"
+            )
+        ]
     manager = simulation_managers[data.id]
     if isinstance(manager, CoalitionNegotiationsManager):
         if manager.step == NegotiationStep.MAKE_OFFER:
