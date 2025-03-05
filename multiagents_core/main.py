@@ -59,21 +59,11 @@ async def end_simulation(data: Data):
 
 @app.post("/get_text")
 async def get_text(data: Data) -> list[str] | None:
-    if data.id not in simulation_managers:
-        return [
-            (
-                "First, start the simulation with `/create_simulation <simulation_name>`.\n"
-                "Available simulations: 'abc', 'sales'"
-            )
-        ]
     manager = simulation_managers[data.id]
     if isinstance(manager, CoalitionNegotiationsManager):
         if manager.step == NegotiationStep.MAKE_OFFER:
             offers = manager.get_user_offer(data.message)
             messages_to_send = [
-<<<<<<< HEAD
-                f"Offer from participant {offer['from']}\n\n{offer['offer']}\nParticipants: "
-=======
                 f"Offer from participant {offer['from']}\n\n"
                 + "\n".join(
                     [
@@ -82,7 +72,6 @@ async def get_text(data: Data) -> list[str] | None:
                     ]
                 )
                 + "\nParticipants: "
->>>>>>> e007cfc (Sales MVP)
                 + ", ".join(offer["participants"])
                 for offer in offers
             ]
@@ -118,9 +107,6 @@ async def get_text(data: Data) -> list[str] | None:
                 for participant_name in manager.participants
             ]
             messages_to_send.append(
-<<<<<<< HEAD
-                f"Accepted offer from participant {accepted_offer['from']}\n\n{accepted_offer['offer']}\nParticipants: "
-=======
                 f"Accepted offer from participant {accepted_offer['from']}\n\n"
                 + "\n".join(
                     [
@@ -129,7 +115,6 @@ async def get_text(data: Data) -> list[str] | None:
                     ]
                 )
                 + "\nParticipants: "
->>>>>>> e007cfc (Sales MVP)
                 + ", ".join(accepted_offer["participants"])
             )
             messages_to_send.append(
