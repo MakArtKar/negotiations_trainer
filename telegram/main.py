@@ -17,9 +17,20 @@ bot = Bot(token=TG_API_TOKEN)
 dp = Dispatcher()
 
 
+help_message = (
+    "Here you can practice your negotiation skills in various cases.\n"
+    "`/create_simulation {name}` - start of the case\n"
+    "name:\n"
+    "   abc - simple negotiation case\n"
+    "   sales - you play a role of a sales manager and should convince to buy your product\n"
+    "`/end_simulation` - finish the case\n"
+    "During the case you can response with simple text - good luck!"
+)
+
+
 @dp.message(Command(commands=["start", "help"]))
 async def send_welcome(message: types.Message):
-    await message.reply("TODO: add start/help message!")
+    await bot.send_message(message.chat.id, help_message)
 
 
 @dp.message(Command("create_simulation"))
