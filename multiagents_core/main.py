@@ -11,6 +11,7 @@ from multiagents_simulator.coalition_negotiations_manager import (
 from multiagents_simulator.one_on_one_negotiations_manager import (
     OneOnOneNegotiationsManager,
 )
+
 from multiagents_simulator.prompts.base import offer_creation_prompt
 
 load_dotenv()
@@ -33,6 +34,7 @@ class Data(BaseModel):
 async def create_simulation(data: Data) -> list[str] | None:
     if data.id in simulation_managers:
         return None
+
     case = data.message.split(maxsplit=1)[1]
     manager_class = (
         CoalitionNegotiationsManager if case == "abc" else OneOnOneNegotiationsManager
