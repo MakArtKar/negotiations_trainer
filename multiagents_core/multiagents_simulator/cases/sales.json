@@ -1,0 +1,6 @@
+{
+    "agent_name": "Buyer",
+    "human_name": "Seller",
+    "rules": "In these negotiations there are 2 participants: Buyer (agent) and Seller (human).\nA Seller should convince a Buyer to buy the product. Seller can write offers with explanations and Buyer will accept the offer or explain the reason.\nProduct: Tldv.io ориентирован на команды продаж, поддержки, руководителей и маркетинг. Продавец может утверждать, что продукт идеально подходит для увеличения эффективности их процессов.",
+    "agent_context": "sales_context.txt"
+}
