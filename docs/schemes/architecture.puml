@@ -1,0 +1,124 @@
+@startuml negotiations_system_architecture
+!theme cerulean
+
+' Styling
+skinparam usecase {
+    BackgroundColor LightBlue
+    BorderColor #0066CC
+}
+
+' Actors
+:User: as user
+
+' Systems
+rectangle "Telegram Service" {
+    usecase "/create_simulation {case}" as create_tg
+    usecase "/end_simulation" as end_tg
+    usecase "text reciever" as text_tg
+}
+
+rectangle "Multiagent Core Service" as core_service {
+    usecase "/create_simulation" as create_core
+    usecase "/end_simulation" as end_core
+    usecase "/get_text" as text_core
+    rectangle "UniversalNegotiationsEngine" {
+        usecase "create_simulation()" as create_engine
+        usecase "make_offers()" as make_offers
+        usecase "respond_offers()" as respond_offers
+        usecase "form_deal()" as form_deal
+
+        rectangle "Negotiation Stages" as stages {
+            usecase "MAKE_OFFERS" as stage_make
+            usecase "RESPOND_OFFERS" as stage_respond
+            usecase "DEAL_FORM" as stage_deal
+            usecase "FINISHED" as stage_finished
+        }
+
+        note right of stages
+          Stage Processing:
+
+          1. MAKE_OFFERS:
+             - AI agents create their offers
+             - Core sends request to user to make offer
+             - Waiting for human's offer
+
+          2. RESPOND_OFFERS:
+             - Core receives human's offer
+             - AI agents respond to all offers
+             - Core sends offers to human
+             - Waiting for human's responses
+
+          3. DEAL_FORM:
+             - Core receives human's responses
+             - Checks all offers where all participants agreed
+             - If deals found: stage = FINISHED
+             - If no deals: 
+               * stage = MAKE_OFFERS
+               * start new round
+        end note
+
+        ' Stage transitions
+        stage_make ..> stage_respond : after getting\nhuman offer
+        stage_respond ..> stage_deal : after getting\nhuman responses
+        stage_deal ..> stage_make : no deals found\nstart new round
+        stage_deal ..> stage_finished : deal formed
+
+        ' Method-stage relationships
+        make_offers ..> stage_make : sets
+        respond_offers ..> stage_respond : sets
+        form_deal ..> stage_deal : sets
+    }
+    :AI Agent: as agent
+}
+
+note right of core_service
+  Multiagent Core Service:
+  
+  1. Manages multiple negotiations:
+     - Each chat has its own UniversalNegotiationsEngine
+     - Engines identified by chat_id
+  
+  2. Handles requests:
+     /create_simulation:
+     - Creates new engine for chat_id
+     - Initializes first round
+     - Returns messages for user
+     
+     /get_text:
+     - Processes user input based on current stage
+     - Updates engine state
+     - Returns messages for user
+     
+     /end_simulation:
+     - Removes engine for chat_id
+end note
+
+' Base interactions
+user <--> create_tg
+user <--> end_tg
+user <--> text_tg
+
+agent --> make_offers
+agent --> respond_offers
+
+' Service interactions
+create_tg ..> create_core : HTTP
+end_tg ..> end_core : HTTP
+text_tg ..> text_core : HTTP
+
+' Core service logic
+create_core ..> create_engine : "1. create simulation"
+create_core ..> make_offers : "2. make initial offers"
+
+text_core ..> respond_offers : "if stage == MAKE_OFFERS"
+text_core ..> form_deal : "if stage == RESPOND_OFFERS"
+form_deal ..> make_offers : "if no deal && rounds < max"
+
+' Notes
+note right of "Telegram Service"
+  Telegram Service acts as a proxy:
+  - Forwards requests to Core
+  - Returns Core's response messages to User
+end note
+
+@enduml 

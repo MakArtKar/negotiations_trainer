@@ -1,0 +1,74 @@
+@startuml negotiations_protocol
+!theme cerulean
+
+' Styling
+skinparam StateFontStyle bold
+skinparam StateAttributeFontStyle italic
+skinparam ArrowColor #0066CC
+skinparam StateBorderColor #666666
+
+title Negotiations Protocol
+
+state "Initialize Negotiations" as Init {
+    state "Load Case" as LoadCase
+    state "Setup Participants" as SetupParticipants
+    LoadCase --> SetupParticipants
+}
+
+state "Creating Offers" as CreatingOffers {
+    state "For each participant that can create offers" as ParticipantLoop
+    state "Get offer from participant" as GetOffer
+    state "Extract offer participants" as ExtractParticipants
+    state "Add to round offers" as AddOffer
+
+    ParticipantLoop --> GetOffer
+    GetOffer --> ExtractParticipants
+    ExtractParticipants --> AddOffer
+    AddOffer --> ParticipantLoop : more participants
+}
+
+state "Processing Responses" as ProcessingResponses {
+    state "For each participant that can respond" as ResponseLoop
+    state "Show available offers" as ShowOffers
+    state "Get participant response" as GetResponse
+    state "Record acceptance" as RecordAcceptance
+
+    ResponseLoop --> ShowOffers
+    ShowOffers --> GetResponse
+    GetResponse --> RecordAcceptance
+    RecordAcceptance --> ResponseLoop : more participants
+}
+
+state "Deal Formation" as DealFormation {
+    state "Check accepted offers" as CheckOffers
+    state "Select random accepted offer" as SelectOffer
+
+    CheckOffers --> SelectOffer : offers exist
+}
+
+[*] --> Init
+Init --> CreatingOffers : start round
+
+CreatingOffers --> ProcessingResponses : all offers collected
+ProcessingResponses --> DealFormation : all responses collected
+DealFormation --> CreatingOffers : no deal && rounds < max_rounds
+DealFormation --> [*] : deal formed || rounds == max_rounds
+
+note right of CreatingOffers
+  Round starts with participants
+  creating their offers
+end note
+
+note right of ProcessingResponses
+  Each participant that can respond
+  reviews and accepts/declines offers
+end note
+
+note right of DealFormation
+  Deal is formed when all participants
+  specified in an offer accept it.
+  If no deal is formed and rounds < max_rounds,
+  start new round
+end note
+
+@enduml  
