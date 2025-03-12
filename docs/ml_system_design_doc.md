@@ -110,7 +110,13 @@
 
 #### 2.2. Блок-схема решения
 
-![scheme](images/block-scheme.png)
+##### Протокол переговоров
+
+![scheme](schemes/negotiations_protocol.png)
+
+##### Архитектура
+
+![scheme](schemes/negotiations_system_architecture.png)
 
 #### 2.3 Этапы решения задачи
 
